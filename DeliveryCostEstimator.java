@@ -158,35 +158,35 @@ public class DeliveryCostEstimator {
         int subsets = 1 << n;
 
         for (int mask = 1; mask < subsets; mask++) {
-            List<Package> candidate = new ArrayList<>();
+            List<Package> temporary = new ArrayList<>();
             double totalWeight = 0;
             for (int j = 0; j < n; j++) {
                 if ((mask & (1 << j)) > 0) {
                     totalWeight += pending.get(j).weight;
-                    candidate.add(pending.get(j));
+                    temporary.add(pending.get(j));
                 }
             }
-            if (totalWeight <= maxWeight && isBetter(candidate, bestShipment)) {
-                bestShipment = candidate;
+            if (totalWeight <= maxWeight && isBetter(temporary, bestShipment)) {
+                bestShipment = temporary;
             }
         }
         return bestShipment;
     }
 
-    private static boolean isBetter(List<Package> cand, List<Package> best) {
+    private static boolean isBetter(List<Package> temp, List<Package> best) {
         if (best.isEmpty()) return true;
-        if (cand.size() > best.size()) return true;
-        if (cand.size() < best.size()) return false;
+        if (temp.size() > best.size()) return true;
+        if (temp.size() < best.size()) return false;
 
-        double candWeight = cand.stream().mapToDouble(p -> p.weight).sum();
+        double tempWeight = temp.stream().mapToDouble(p -> p.weight).sum();
         double bestWeight = best.stream().mapToDouble(p -> p.weight).sum();
 
-        if (candWeight > bestWeight) return true;
-        if (candWeight < bestWeight) return false;
+        if (tempWeight > bestWeight) return true;
+        if (tempWeight < bestWeight) return false;
 
-        double candDist = cand.stream().mapToDouble(p -> p.distance).max().orElse(0.0);
+        double tempDist = temp.stream().mapToDouble(p -> p.distance).max().orElse(0.0);
         double bestDist = best.stream().mapToDouble(p -> p.distance).max().orElse(0.0);
 
-        return candDist < bestDist;
+        return tempDist < bestDist;
     }
 }
